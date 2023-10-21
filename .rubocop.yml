@@ -1,0 +1,49 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+  # Exclude:
+  #   - "scaffolding/*.rb"
+  #   - "vendor/**/*"
+  #   - "gemfiles/vendor/bundle/**/*"
+
+# Style/IfUnlessModifier:
+#   Enabled: false
+
+Layout/LineLength:
+  Max: 88
+
+Style/Documentation:
+  Enabled: false
+
+# Style/GuardClause:
+#   Enabled: false
+
+# Naming/FileName:
+#   Enabled: false
+
+# Naming/ClassAndModuleCamelCase:
+#   Enabled: false
+
+# Style/InverseMethods:
+#   Enabled: false
+
+# Metrics/BlockLength:
+#   Max: 100
+
+# Metrics/MethodLength:
+#   Max: 25
+
+# Metrics/AbcSize:
+#   Max: 22
+
+# Style/StderrPuts:
+#   Enabled: false
+
+# Naming/RescuedExceptionsVariableName:
+#   Enabled: false
+
+# Metrics/ClassLength:
+#   Max: 120
+
+# Style/StringLiterals:
+#   EnforcedStyle: double_quotes
