@@ -51,4 +51,14 @@ module PathJson
       end
     end
   end
+
+  class LeafNode < Node
+    def get_value(row)
+      row[jsonpath]
+    end
+
+    def intersects(row)
+      row[jsonpath].nil?
+    end
+  end
 end
