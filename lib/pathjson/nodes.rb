@@ -18,13 +18,11 @@ module PathJson
     class << self
       private
 
-      def cache_error_msg(method_name)
-        "Unexpected use of `cache` on :#{method_name}. Use it on :intersects."
-      end
-
       def cache(method_name)
         unless method_name == :intersects
-          raise UnexpectedUseOfDecorator, cache_error_msg(method_name)
+          raise UnexpectedUseOfDecorator, <<~ERRMSG.chomp
+            "Unexpected use of `cache` on :#{method_name}. Use it on :intersects."
+          ERRMSG
         end
 
         original = instance_method(method_name)
@@ -36,13 +34,11 @@ module PathJson
         end
       end
 
-      def guard_error_msg(method_name)
-        "Unexpected use of `guard` on :#{method_name}. Use it on :get_value."
-      end
-
       def guard(method_name)
         unless method_name == :get_value
-          raise UnexpectedUseOfDecorator, guard_error_msg(method_name)
+          raise UnexpectedUseOfDecorator, <<~ERRMSG.chomp
+            Unexpected use of `guard` on :#{method_name}. Use it on :get_value.
+          ERRMSG
         end
 
         original = instance_method(method_name)
