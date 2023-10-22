@@ -30,11 +30,18 @@ Style/Documentation:
 # Metrics/BlockLength:
 #   Max: 100
 
-# Metrics/MethodLength:
-#   Max: 25
+Metrics/MethodLength:
+  Enabled: false
+  # Max: 25
 
-# Metrics/AbcSize:
-#   Max: 22
+Metrics/AbcSize:
+  Max: 26
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+Metrics/CyclomaticComplexity:
+  Max: 10
 
 # Style/StderrPuts:
 #   Enabled: false
