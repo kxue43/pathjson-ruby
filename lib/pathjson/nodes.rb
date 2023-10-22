@@ -108,4 +108,22 @@ module PathJson
     end
     guard :get_value
   end
+
+  class ArrayNode < InternalNode
+    class MissingArrayIndexError < PathJsonError; end
+
+    def get_value(row)
+      length = children.length
+      (0...length).each do |n|
+        raise MissingArrayIndexError, <<~ERRMSG.chomp unless children.key?(n.to_s)
+          Missing a JSONPath of the format `#{jsonpath}[#{n}]***`.
+        ERRMSG
+      end
+      (0...length).each_with_object([]) do |n, acc|
+        child = children[n.to_s]
+        acc.push(child.get_value(row)) if child.intersects(row)
+      end
+    end
+    guard :get_value
+  end
 end
