@@ -99,4 +99,13 @@ module PathJson
     end
     cache :intersects
   end
+
+  class ObjectNode < InternalNode
+    def get_value(row)
+      children.each_with_object({}) do |(key, child), acc|
+        acc[key] = child.get_value(row) if child.intersects(row)
+      end
+    end
+    guard :get_value
+  end
 end
