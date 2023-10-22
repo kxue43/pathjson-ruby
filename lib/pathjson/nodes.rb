@@ -3,16 +3,11 @@
 module PathJson
   class Node
     class NilValuesAccessedError < PathJsonError; end
-
-    class << self
-      attr_accessor :decorated_subclass_methods
-      protected :decorated_subclass_methods, :decorated_subclass_methods=
-    end
-
-    Node.decorated_subclass_methods = {}
+    class UnexpectedUseOfDecorator < PathJsonError; end
 
     attr_accessor :jsonpath, :last_checked_row, :intersected_last_time
-    private :last_checked_row, :intersected_last_time
+    private :last_checked_row, :last_checked_row=,
+            :intersected_last_time, :intersected_last_time=
 
     def initialize(jsonpath)
       self.jsonpath = jsonpath
@@ -20,23 +15,37 @@ module PathJson
       self.intersected_last_time = false
     end
 
-    def self.method_added(method_name)
-      super
-      if self == Node || Node.decorated_subclass_methods[self]&.include?(method_name)
-        return
+    class << self
+      private
+
+      def cache_error_msg(method_name)
+        "Unexpected use of `cache` on :#{method_name}. Use it on :intersects."
       end
 
-      (Node.decorated_subclass_methods[self] ||= []).push(method_name)
-      original = instance_method(method_name)
-      case method_name
-      when :intersects
+      def cache(method_name)
+        unless method_name == :intersects
+          raise UnexpectedUseOfDecorator, cache_error_msg(method_name)
+        end
+
+        original = instance_method(method_name)
         define_method(:intersects) do |row|
           return intersected_last_time if last_checked_row == row
 
           self.last_checked_row = row
           self.intersected_last_time = original.bind(self).call(row)
         end
-      when :get_value
+      end
+
+      def guard_error_msg(method_name)
+        "Unexpected use of `guard` on :#{method_name}. Use it on :get_value."
+      end
+
+      def guard(method_name)
+        unless method_name == :get_value
+          raise UnexpectedUseOfDecorator, guard_error_msg(method_name)
+        end
+
+        original = instance_method(method_name)
         define_method(:get_value) do |row|
           unless intersects(row)
             raise NilValuesAccessedError,
@@ -56,9 +65,11 @@ module PathJson
     def get_value(row)
       row[jsonpath]
     end
+    guard :get_value
 
     def intersects(row)
       row[jsonpath].nil?
     end
+    cache :intersects
   end
 end
