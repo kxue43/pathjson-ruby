@@ -126,4 +126,6 @@ module PathJson
     end
     guard :get_value
   end
+
+  private_constant :Node, :LeafNode, :ObjectNode, :ArrayNode
 end

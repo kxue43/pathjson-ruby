@@ -7,6 +7,7 @@ module PathJson
     class InvalidJSONPathError < PathJsonError; end
 
     JSONPATH = /\A(?<head>\$(?:\.[a-zA-Z]\w*|\[\d+\])*)(?<tail>\.[a-zA-Z]\w*|\[\d+\])\z/
+    private_constant :JSONPATH
 
     attr_accessor :leaf_jsonpaths, :internal_nodes
     private :leaf_jsonpaths, :leaf_jsonpaths=, :internal_nodes, :internal_nodes=
