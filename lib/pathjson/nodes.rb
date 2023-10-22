@@ -48,7 +48,7 @@ module PathJson
                   if respond_to?(:children)
                     "Values at JSONPaths `#{jsonpath}***` are all `nil`."
                   else
-                    "Value at JSONPath `#{jsonpath}` `nil`."
+                    "Value at JSONPath `#{jsonpath}` is `nil`."
                   end
           end
           original.bind(self).call(row)
@@ -64,7 +64,7 @@ module PathJson
     guard :get_value
 
     def intersects(row)
-      row[jsonpath].nil?
+      !row[jsonpath].nil?
     end
     cache :intersects
   end

@@ -47,9 +47,9 @@ module PathJson
 
     def create_internal_node(self_jsonpath, child_jsonpath)
       if child_jsonpath.end_with?(']')
-        ArrayNode(self_jsonpath)
+        ArrayNode.new(self_jsonpath)
       else
-        ObjectNode(self_jsonpath)
+        ObjectNode.new(self_jsonpath)
       end
     end
     private :create_internal_node
@@ -79,7 +79,7 @@ module PathJson
       return @model if @model
 
       leaf_jsonpaths.each do |leaf_jsonpath|
-        leaf_node = LeafNode(leaf_jsonpath)
+        leaf_node = LeafNode.new(leaf_jsonpath)
         parent_jsonpath = get_parent_jsonpath(leaf_jsonpath)
         join_nodes(parent_jsonpath, leaf_node)
       end
