@@ -68,4 +68,35 @@ module PathJson
     end
     cache :intersects
   end
+
+  class InternalNode < Node
+    class DuplicateNodeAdditionError < PathJsonError; end
+
+    attr_accessor :children
+    private :children, :children=
+
+    def initialize(jsonpath)
+      super
+      self.children = {}
+    end
+
+    def add_child(key, child)
+      if children.key?(key)
+        raise DuplicateNodeAdditionError, <<~ERRMSG.chomp
+          Child node `#{child.jsonpath}` was added to parent node `#{jsonpath}` \
+          more than once during model building."
+        ERRMSG
+      end
+
+      children[key] = child
+    end
+
+    def intersects(row)
+      children
+        .lazy
+        .map { |_, child| child.intersects(row) }
+        .any?
+    end
+    cache :intersects
+  end
 end
