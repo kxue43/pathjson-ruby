@@ -21,29 +21,47 @@ module PathJson
       ->(row) { model.get_value(row) }
     end
 
-    def get_parent_jsonpath(child_jsonpath)
-      unless (match = JSONPATH.match(child_jsonpath))
-        raise InvalidJSONPathError, <<~'ERRMSG'.chomp
-          JSONPath `#{child_jsonpath}` is invalid. Allowed pattern is \
-          `/\A\$(?:\.[a-zA-Z]\w*|\[\d+\])*\.[a-zA-Z]\w*|\[\d+\]\z/`
-        ERRMSG
-      end
+    def model
+      return @model if @model
 
-      match[:head]
+      leaf_jsonpaths.each do |leaf_jsonpath|
+        leaf_node = LeafNode.new(leaf_jsonpath)
+        parent_jsonpath = get_parent_jsonpath(leaf_jsonpath)
+        join_nodes(parent_jsonpath, leaf_node)
+      end
+      @model = internal_nodes['$']
     end
+    private :model
+
+    class << self
+      private
+
+      def guard(method_name)
+        original = instance_method(method_name)
+        define_method(method_name) do |child_jsonpath|
+          unless JSONPATH.match?(child_jsonpath)
+            raise InvalidJSONPathError, <<~'ERRMSG'.chomp
+              JSONPath `#{child_jsonpath}` is invalid. Allowed pattern is \
+              `/\A\$(?:\.[a-zA-Z]\w*|\[\d+\])*\.[a-zA-Z]\w*|\[\d+\]\z/`
+            ERRMSG
+          end
+
+          original.bind(self).call(child_jsonpath)
+        end
+      end
+    end
+
+    def get_parent_jsonpath(child_jsonpath)
+      JSONPATH.match(child_jsonpath)[:head]
+    end
+    guard :get_parent_jsonpath
     private :get_parent_jsonpath
 
     def get_child_key_in_parent(child_jsonpath)
-      unless (match = JSONPATH.match(child_jsonpath))
-        raise InvalidJSONPathError, <<~'ERRMSG'.chomp
-          JSONPath `#{child_jsonpath}` is invalid. Allowed pattern is \
-          `/\A\$(?:\.[a-zA-Z]\w*|\[\d+\])*\.[a-zA-Z]\w*|\[\d+\]\z/`
-        ERRMSG
-      end
-
-      tail = match[:tail]
+      tail = JSONPATH.match(child_jsonpath)[:tail]
       tail.end_with?(']') ? tail[1..-2] : tail[1..]
     end
+    guard :get_child_key_in_parent
     private :get_child_key_in_parent
 
     def create_internal_node(self_jsonpath, child_jsonpath)
@@ -75,17 +93,5 @@ module PathJson
       end
     end
     private :join_nodes
-
-    def model
-      return @model if @model
-
-      leaf_jsonpaths.each do |leaf_jsonpath|
-        leaf_node = LeafNode.new(leaf_jsonpath)
-        parent_jsonpath = get_parent_jsonpath(leaf_jsonpath)
-        join_nodes(parent_jsonpath, leaf_node)
-      end
-      @model = internal_nodes['$']
-    end
-    private :model
   end
 end
