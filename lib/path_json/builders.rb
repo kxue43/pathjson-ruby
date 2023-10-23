@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pathjson/nodes'
+require 'path_json/nodes'
 
 module PathJson
   class JsonifyLambdaBuilder

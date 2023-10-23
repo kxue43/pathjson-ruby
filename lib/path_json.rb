@@ -3,5 +3,5 @@
 module PathJson
   class PathJsonError < ::RuntimeError; end
 
-  autoload(:JsonifyLambdaBuilder, 'pathjson/builders')
+  autoload(:JsonifyLambdaBuilder, 'path_json/builders')
 end
