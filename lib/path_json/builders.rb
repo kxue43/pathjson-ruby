@@ -9,12 +9,9 @@ module PathJson
     JSONPATH = /\A(?<head>\$(?:\.[a-zA-Z]\w*|\[\d+\])*)(?<tail>\.[a-zA-Z]\w*|\[\d+\])\z/
     private_constant :JSONPATH
 
-    attr_accessor :leaf_jsonpaths, :internal_nodes
-    private :leaf_jsonpaths, :leaf_jsonpaths=, :internal_nodes, :internal_nodes=
-
     def initialize(leaf_jsonpaths)
-      self.leaf_jsonpaths = leaf_jsonpaths
-      self.internal_nodes = {}
+      @leaf_jsonpaths = leaf_jsonpaths
+      @internal_nodes = {}
     end
 
     def build
@@ -24,12 +21,12 @@ module PathJson
     def model
       return @model if @model
 
-      leaf_jsonpaths.each do |leaf_jsonpath|
+      @leaf_jsonpaths.each do |leaf_jsonpath|
         leaf_node = LeafNode.new(leaf_jsonpath)
         parent_jsonpath = get_parent_jsonpath(leaf_jsonpath)
         join_nodes(parent_jsonpath, leaf_node)
       end
-      @model = internal_nodes['$']
+      @model = @internal_nodes['$']
     end
     private :model
 
@@ -74,15 +71,15 @@ module PathJson
     private :create_internal_node
 
     def join_nodes(parent_jsonpath, child_node)
-      if internal_nodes.key?(parent_jsonpath)
+      if @internal_nodes.key?(parent_jsonpath)
         key = get_child_key_in_parent(child_node.jsonpath)
-        parent_node = internal_nodes[parent_jsonpath]
+        parent_node = @internal_nodes[parent_jsonpath]
         parent_node.add_child(key, child_node)
         if child_node.is_a?(InternalNode)
-          internal_nodes[child_node.jsonpath] = child_node
+          @internal_nodes[child_node.jsonpath] = child_node
         end
       elsif parent_jsonpath == '$'
-        internal_nodes[parent_jsonpath] =
+        @internal_nodes[parent_jsonpath] =
           create_internal_node(parent_jsonpath, child_node.jsonpath)
         join_nodes(parent_jsonpath, child_node)
       else

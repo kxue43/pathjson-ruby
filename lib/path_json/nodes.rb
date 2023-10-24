@@ -5,14 +5,12 @@ module PathJson
     class NilValuesAccessedError < PathJsonError; end
     class UnexpectedUseOfDecorator < PathJsonError; end
 
-    attr_accessor :jsonpath, :last_checked_row, :intersected_last_time
-    private :last_checked_row, :last_checked_row=,
-            :intersected_last_time, :intersected_last_time=
+    attr_accessor :jsonpath
 
     def initialize(jsonpath)
       self.jsonpath = jsonpath
-      self.last_checked_row = nil
-      self.intersected_last_time = false
+      @last_checked_row = nil
+      @intersected_last_time = false
     end
 
     class << self
@@ -27,10 +25,10 @@ module PathJson
 
         original = instance_method(method_name)
         define_method(:intersects) do |row|
-          return intersected_last_time if last_checked_row == row
+          return @intersected_last_time if @last_checked_row == row
 
-          self.last_checked_row = row
-          self.intersected_last_time = original.bind(self).call(row)
+          @last_checked_row = row
+          @intersected_last_time = original.bind(self).call(row)
         end
       end
 
